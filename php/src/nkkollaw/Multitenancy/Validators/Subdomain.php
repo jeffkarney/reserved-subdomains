@@ -49,6 +49,8 @@ class Subdomain
     {
         $reserved_subdomains = self::getReservedSubdomains($reserved_lists, $ignore_default_list);
 
+        $subdomain = strtolower(trim($subdomain));
+
         $is_reserved = false;
         foreach ($reserved_subdomains as $reserved_subdomain) {
             if (self::isRegex($reserved_subdomain)) {
