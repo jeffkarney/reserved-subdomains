@@ -47,6 +47,8 @@ class Subdomain
 
     public static function isReserved($subdomain, $reserved_lists = [], $ignore_default_list = false)
     {
+        $subdomain = strtolower(trim($subdomain));
+
         $reserved_subdomains = self::getReservedSubdomains($reserved_lists);
 
         $is_reserved = false;
