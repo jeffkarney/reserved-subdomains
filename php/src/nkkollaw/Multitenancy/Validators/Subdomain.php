@@ -1,7 +1,29 @@
 <?php
+
 namespace nkkollaw\Multitenancy\Validators;
+
 class Subdomain
 {
+    public static function getReservedSubdomains($reserved_lists, $ignore_default_list)
+    {
+        if (is_array($reserved_lists)) {
+            if (!$ignore_default_list) {
+                $reserved_suddomains[] = __DIR__ . '/../../../../../reserved-subdomains.yaml';
+            }
+            $reserved_subdomains = [[]];
+            foreach ($reserved_lists as $reserved_list) {
+                if (is_array($reserved_list)) {
+                    $reserved_subdomains[] = $reserved_list;
+                } else {
+                    $reserved_subdomains[] = self::readYAML($reserved_lists);
+                }
+            }
+
+            return array_merge(...$reserved_subdomains);
+        }
+
+        return self::readYAML($reserved_lists);
+    }
 
     public static function readYAML($yaml_file)
     {
@@ -23,9 +45,9 @@ class Subdomain
         return strpos($str, '/') !== false;
     }
 
-    public static function isReserved($subdomain, $yaml_file = __DIR__ . '/../../../../../reserved-subdomains.yaml')
+    public static function isReserved($subdomain, $reserved_lists = [], $ignore_default_list = false)
     {
-        $reserved_subdomains = self::readYAML($yaml_file);
+        $reserved_subdomains = self::getReservedSubdomains($reserved_lists, $ignore_default_list);
 
         $is_reserved = false;
         foreach ($reserved_subdomains as $reserved_subdomain) {
