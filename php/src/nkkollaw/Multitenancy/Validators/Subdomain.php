@@ -49,7 +49,7 @@ class Subdomain
     {
         $subdomain = strtolower(trim($subdomain));
 
-        $reserved_subdomains = self::getReservedSubdomains($reserved_lists);
+        $reserved_subdomains = self::getReservedSubdomains($reserved_lists, $ignore_default_list);
 
         $is_reserved = false;
         foreach ($reserved_subdomains as $reserved_subdomain) {
