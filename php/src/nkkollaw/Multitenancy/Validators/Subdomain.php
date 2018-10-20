@@ -4,11 +4,13 @@ namespace nkkollaw\Multitenancy\Validators;
 
 class Subdomain
 {
+    public static $default_yaml_file = __DIR__ . '/../../../../../reserved-subdomains.yaml';
+
     public static function getReservedSubdomains($reserved_lists, $ignore_default_list)
     {
         if (is_array($reserved_lists)) {
             if (!$ignore_default_list) {
-                $reserved_suddomains[] = __DIR__ . '/../../../../../reserved-subdomains.yaml';
+                $reserved_suddomains[] = self::$default_yaml_file;
             }
             $reserved_subdomains = [[]];
             foreach ($reserved_lists as $reserved_list) {
@@ -29,12 +31,12 @@ class Subdomain
     {
         $yaml = file_get_contents($yaml_file);
         if (!$yaml) {
-            throw new \Exception('unable to find YAML file');
+            throw new \Exception('unable to find YAML file: ' . $yaml_file);
         }
 
         $reserved_subdomains = \Symfony\Component\Yaml\Yaml::parse($yaml);
         if (!$reserved_subdomains) {
-            throw new \Exception('unable to parse YAML');
+            throw new \Exception('unable to parse YAML: ' . $yaml_file);
         }
 
         return $reserved_subdomains;
@@ -51,23 +53,16 @@ class Subdomain
 
         $reserved_subdomains = self::getReservedSubdomains($reserved_lists, $ignore_default_list);
 
-        $is_reserved = false;
+        if (\in_array($subdomain, $reserved_subdomains)) {
+            return true;
+        }
+
         foreach ($reserved_subdomains as $reserved_subdomain) {
-            if (self::isRegex($reserved_subdomain)) {
-                if (preg_match($reserved_subdomain, $subdomain)) {
-                    $is_reserved = true;
-
-                    break;
-                }
-            } else {
-                if ($reserved_subdomain == $subdomain) {
-                    $is_reserved = true;
-
-                    break;
-                }
+            if (self::isRegex($reserved_subdomain) && preg_match($reserved_subdomain, $subdomain)) {
+                return true;
             }
         }
 
-        return $is_reserved;
+        return false;
     }
 }
